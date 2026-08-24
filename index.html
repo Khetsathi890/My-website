@@ -790,15 +790,67 @@ drawerBody.addEventListener('click', e=>{
   if(rem){ delete cart[rem.dataset.remove]; updateCartUI(); }
 });
 
-/* ---------------- CHECKOUT + CONFETTI ---------------- */
+/* ---------------- WHATSAPP CHECKOUT ---------------- */
 document.getElementById('checkoutBtn').addEventListener('click', ()=>{
-  const hasItems = Object.keys(cart).length>0;
-  if(!hasItems){ showToast("Your basket is empty — add something first! 🧸"); return; }
+  const ids = Object.keys(cart).filter(id => cart[id] > 0);
+
+  if(ids.length === 0){
+    showToast("Your basket is empty — add something first! 🧸");
+    return;
+  }
+
+  let subtotal = 0;
+  let orderLines = [];
+
+  ids.forEach(id => {
+    const p = PRODUCTS.find(pp => pp.id === Number(id));
+    const qty = cart[id];
+    const itemTotal = p.price * qty;
+
+    subtotal += itemTotal;
+
+    orderLines.push(
+      `• ${p.name} x ${qty} = ${money(itemTotal)}`
+    );
+  });
+
+  const customerName = prompt("Please enter your name:");
+  if(!customerName) return;
+
+  const phone = prompt("Please enter your mobile number:");
+  if(!phone) return;
+
+  const address = prompt("Please enter your full delivery address:");
+  if(!address) return;
+
+  const pin = prompt("Please enter your PIN code:");
+  if(!pin) return;
+
+  const message =
+`🌱 LITTLE SPROUTS — NEW ORDER
+
+👤 Customer: ${customerName}
+📱 Phone: ${phone}
+
+📦 ORDER:
+${orderLines.join('\n')}
+
+💰 TOTAL: ${money(subtotal)}
+
+🏠 Delivery Address:
+${address}
+
+📍 PIN Code: ${pin}
+
+Please confirm my order.`;
+
+  const whatsappURL =
+    `https://wa.me/918218299756?text=${encodeURIComponent(message)}`;
+
+  window.open(whatsappURL, '_blank');
+
   launchConfetti();
-  showToast("🎉 Order placed! A confirmation is on its way.");
-  cart = {};
-  updateCartUI();
-  setTimeout(closeDrawer, 1200);
+  showToast("🛒 Opening WhatsApp...");
 });
 
 function launchConfetti(){
