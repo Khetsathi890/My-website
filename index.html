@@ -1174,7 +1174,40 @@ function openCheckout(){
       </div>
     `;
 
-    }).join('');
+   const deliveryCharge = 50;
+
+checkoutItems.innerHTML = ids.map(id => {
+  const p = PRODUCTS.find(p => p.id === Number(id));
+  const qty = cart[id];
+  const itemTotal = p.price * qty;
+
+  subtotal += itemTotal;
+
+  return `
+    <div class="checkout-item">
+      <div>
+        <div class="checkout-item-name">${p.name}</div>
+        <div class="checkout-item-qty">
+          ${qty} × ${money(p.price)}
+        </div>
+      </div>
+
+      <div class="checkout-item-price">
+        ${money(itemTotal)}
+      </div>
+    </div>
+  `;
+}).join('') + `
+  <div class="checkout-item">
+    <div class="checkout-item-name">Delivery</div>
+
+    <div class="checkout-item-price">
+      ${money(deliveryCharge)}
+    </div>
+  </div>
+`;
+
+const grandTotal = subtotal + deliveryCharge;
 
   const deliveryCharge = 50; // Change 50 to your delivery charge
   const grandTotal = subtotal + deliveryCharge;
