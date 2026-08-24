@@ -1132,8 +1132,16 @@ drawerBody.addEventListener('click', e=>{
   if(rem){ delete cart[rem.dataset.remove]; updateCartUI(); }
 });
 
-/* ---------------- WHATSAPP CHECKOUT ---------------- */
-document.getElementById('checkoutBtn').addEventListener('click', ()=>{
+/* ---------------- PROFESSIONAL WHATSAPP CHECKOUT ---------------- */
+
+const checkoutOverlay = document.getElementById('checkoutOverlay');
+const checkoutForm = document.getElementById('checkoutForm');
+const checkoutItems = document.getElementById('checkoutItems');
+const checkoutTotal = document.getElementById('checkoutTotal');
+const checkoutClose = document.getElementById('checkoutClose');
+
+function openCheckout(){
+
   const ids = Object.keys(cart).filter(id => cart[id] > 0);
 
   if(ids.length === 0){
@@ -1142,9 +1150,94 @@ document.getElementById('checkoutBtn').addEventListener('click', ()=>{
   }
 
   let subtotal = 0;
+
+  checkoutItems.innerHTML = ids.map(id => {
+
+    const p = PRODUCTS.find(pp => pp.id === Number(id));
+    const qty = cart[id];
+    const itemTotal = p.price * qty;
+
+    subtotal += itemTotal;
+
+    return `
+      <div class="checkout-item">
+        <div>
+          <div class="checkout-item-name">${p.name}</div>
+          <div class="checkout-item-qty">
+            ${qty} × ${money(p.price)}
+          </div>
+        </div>
+
+        <div class="checkout-item-price">
+          ${money(itemTotal)}
+        </div>
+      </div>
+    `;
+
+  }).join('');
+
+  checkoutTotal.textContent = money(subtotal);
+
+  closeDrawer();
+
+  checkoutOverlay.classList.add('show');
+
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCheckout(){
+
+  checkoutOverlay.classList.remove('show');
+
+  document.body.style.overflow = '';
+
+}
+
+document.getElementById('checkoutBtn').addEventListener('click', openCheckout);
+
+checkoutClose.addEventListener('click', closeCheckout);
+
+checkoutOverlay.addEventListener('click', e => {
+
+  if(e.target === checkoutOverlay){
+    closeCheckout();
+  }
+
+});
+
+checkoutForm.addEventListener('submit', e => {
+
+  e.preventDefault();
+
+  const name =
+    document.getElementById('customerName').value.trim();
+
+  const phone =
+    document.getElementById('customerPhone').value.trim();
+
+  const address =
+    document.getElementById('customerAddress').value.trim();
+
+  const pin =
+    document.getElementById('customerPin').value.trim();
+
+  if(!/^[0-9]{10}$/.test(phone)){
+    showToast("Please enter a valid 10-digit mobile number 📱");
+    return;
+  }
+
+  if(!/^[0-9]{6}$/.test(pin)){
+    showToast("Please enter a valid 6-digit PIN code 📍");
+    return;
+  }
+
+  const ids = Object.keys(cart).filter(id => cart[id] > 0);
+
+  let subtotal = 0;
   let orderLines = [];
 
   ids.forEach(id => {
+
     const p = PRODUCTS.find(pp => pp.id === Number(id));
     const qty = cart[id];
     const itemTotal = p.price * qty;
@@ -1154,45 +1247,44 @@ document.getElementById('checkoutBtn').addEventListener('click', ()=>{
     orderLines.push(
       `• ${p.name} x ${qty} = ${money(itemTotal)}`
     );
+
   });
-
-  const customerName = prompt("Please enter your name:");
-  if(!customerName) return;
-
-  const phone = prompt("Please enter your mobile number:");
-  if(!phone) return;
-
-  const address = prompt("Please enter your full delivery address:");
-  if(!address) return;
-
-  const pin = prompt("Please enter your PIN code:");
-  if(!pin) return;
 
   const message =
 `🌱 LITTLE SPROUTS — NEW ORDER
 
-👤 Customer: ${customerName}
-📱 Phone: ${phone}
+👤 CUSTOMER
+Name: ${name}
+Phone: ${phone}
 
-📦 ORDER:
+📦 ORDER
 ${orderLines.join('\n')}
 
 💰 TOTAL: ${money(subtotal)}
 
-🏠 Delivery Address:
+🏠 DELIVERY ADDRESS
 ${address}
 
-📍 PIN Code: ${pin}
+📍 PIN CODE
+${pin}
 
 Please confirm my order.`;
 
   const whatsappURL =
     `https://wa.me/918218299756?text=${encodeURIComponent(message)}`;
 
-  window.location.href = whatsappURL;
+  closeCheckout();
 
   launchConfetti();
-  showToast("🛒 Opening WhatsApp...");
+
+  showToast("🎉 Opening WhatsApp...");
+
+  setTimeout(() => {
+
+    window.location.href = whatsappURL;
+
+  }, 500);
+
 });
 
 function launchConfetti(){
