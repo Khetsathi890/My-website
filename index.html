@@ -847,7 +847,7 @@ Please confirm my order.`;
   const whatsappURL =
     `https://wa.me/918218299756?text=${encodeURIComponent(message)}`;
 
-  window.open(whatsappURL, '_blank');
+  window.location.href = whatsappURL;
 
   launchConfetti();
   showToast("🛒 Opening WhatsApp...");
