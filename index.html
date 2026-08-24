@@ -1174,9 +1174,12 @@ function openCheckout(){
       </div>
     `;
 
-  }).join('');
+    }).join('');
 
-  checkoutTotal.textContent = money(subtotal);
+  const deliveryCharge = 50; // Change 50 to your delivery charge
+  const grandTotal = subtotal + deliveryCharge;
+
+  checkoutTotal.textContent = money(grandTotal);
 
   closeDrawer();
 
@@ -1244,13 +1247,16 @@ checkoutForm.addEventListener('submit', e => {
 
     subtotal += itemTotal;
 
-    orderLines.push(
-      `• ${p.name} x ${qty} = ${money(itemTotal)}`
-    );
+orderLines.push(
+  `• ${p.name} x ${qty} = ${money(itemTotal)}`
+);
 
-  });
+});
 
-  const message =
+const deliveryCharge = 50; // Your delivery charge
+const grandTotal = subtotal + deliveryCharge;
+
+const message =
 `🌱 LITTLE SPROUTS — NEW ORDER
 
 👤 CUSTOMER
@@ -1260,7 +1266,9 @@ Phone: ${phone}
 📦 ORDER
 ${orderLines.join('\n')}
 
-💰 TOTAL: ${money(subtotal)}
+💰 Subtotal: ${money(subtotal)}
+Delivery: ${money(deliveryCharge)}
+Total: ${money(grandTotal)}
 
 🏠 DELIVERY ADDRESS
 ${address}
