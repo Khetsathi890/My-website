@@ -1200,13 +1200,6 @@ function openCheckout(){
   document.body.style.overflow = 'hidden';
 }
 
-  const ids = Object.keys(cart).filter(id => cart[id] > 0);
-
-  if(ids.length === 0){
-    showToast("Your basket is empty — add something first! 🧸");
-    return;
-  }
-
 function closeCheckout(){
 
   checkoutOverlay.classList.remove('show');
