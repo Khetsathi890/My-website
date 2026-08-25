@@ -1150,6 +1150,64 @@ function openCheckout(){
   }
 
   let subtotal = 0;
+  const deliveryCharge = 50;
+
+  checkoutItems.innerHTML = ids.map(id => {
+
+    const p = PRODUCTS.find(pp => pp.id === Number(id));
+    const qty = cart[id];
+    const itemTotal = p.price * qty;
+
+    subtotal += itemTotal;
+
+    return `
+      <div class="checkout-item">
+        <div>
+          <div class="checkout-item-name">${p.name}</div>
+
+          <div class="checkout-item-qty">
+            ${qty} × ${money(p.price)}
+          </div>
+        </div>
+
+        <div class="checkout-item-price">
+          ${money(itemTotal)}
+        </div>
+      </div>
+    `;
+
+  }).join('') + `
+
+    <div class="checkout-item">
+      <div>
+        <div class="checkout-item-name">Delivery</div>
+      </div>
+
+      <div class="checkout-item-price">
+        ${money(deliveryCharge)}
+      </div>
+    </div>
+  `;
+
+  const grandTotal = subtotal + deliveryCharge;
+
+  checkoutTotal.textContent = money(grandTotal);
+
+  closeDrawer();
+
+  checkoutOverlay.classList.add('show');
+
+  document.body.style.overflow = 'hidden';
+}
+
+  const ids = Object.keys(cart).filter(id => cart[id] > 0);
+
+  if(ids.length === 0){
+    showToast("Your basket is empty — add something first! 🧸");
+    return;
+  }
+
+  let subtotal = 0;
 
   checkoutItems.innerHTML = ids.map(id => {
 
